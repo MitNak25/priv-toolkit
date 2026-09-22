@@ -29,7 +29,7 @@ Each sub‑folder contains a small, self‑contained utility that:
 
 ```bash
 # Clone the repo
-git clone https://github.com/MituNakan/priv-toolkit.git
+git clone https://github.com/MitNak25/priv-toolkit.git
 cd priv-toolkit
 
 # Set up a virtual environment
