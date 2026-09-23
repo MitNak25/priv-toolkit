@@ -1,50 +1,102 @@
-# Priv‑Toolkit
+# Priv-Toolkit
 
-**A privacy‑first toolbox built on Proton services** (VPN, Drive, Pass, Lumo).  
-Each sub‑folder contains a small, self‑contained utility that:
-The current module is a VPN API demo that reads `PROTON_VPN_TOKEN` from the environment and does not persist credentials.
-* Keeps secrets encrypted locally (AES‑256 via `cryptography`).
-* Communicates with Proton APIs over HTTPS with OAuth tokens.
-* Leaves **no raw logs** on disk – everything is either in‑memory or stored in an encrypted SQLite DB.
+A privacy-focused Python toolbox.
 
-## Table of Contents
+The currently implemented module is a small Proton VPN API client. It reads
+`PROTON_VPN_TOKEN` from the environment, requests the available server list,
+and prints the response as formatted JSON.
 
-- [Modules](#modules)
-- [Installation](#installation)
-- [Usage examples](#usage-examples)
-- [Contributing](#contributing)
-- [License](#license)
+No credentials are written to disk or printed in error messages.
 
-## Modules
+## Current module
 
-| Folder | Purpose | Quick start |
-|--------|---------|------------|
-| `vpn-client/` | Auto‑connect to the fastest Proton VPN server, rotate exit nodes, store encrypted stats. | `cd vpn-client && ./connect.py` |
-| `secure-share/` | Upload a file to Proton Drive and generate a temporary share link. | `python upload.py myfile.pdf` |
-| `pass-manager/` | Generate strong passwords and store them in Proton Pass. | `python gen.py` |
-| `lumo-assistant/` | Ask Lumo questions from the terminal – zero‑access encryption, no logs. | `python ask.py "How can I encrypt a zip?"` |
-| `audit-suite/` | Scan your machine for common privacy leaks and produce an encrypted markdown report. | `python scan.py` |
+| Path | Purpose |
+| --- | --- |
+| `vpn-client/connect.py` | Fetch and display available Proton VPN servers. |
 
+The previously planned Drive, Pass, Lumo, and audit modules are not implemented
+yet and are not advertised as available commands.
+
+## Requirements
+
+- Python 3.9 or newer
+- A valid Proton VPN API token
+- Internet access
 
 ## Installation
 
 ```bash
-# Clone the repo
 git clone https://github.com/MitNak25/priv-toolkit.git
 cd priv-toolkit
 
-# Set up a virtual environment
 python3 -m venv .venv
-source .venv/bin/activate   # Windows: .\.venv\Scripts\activate
+source .venv/bin/activate
+```
 
-# Install shared dependencies
-pip install -r requirements.txt
+On Windows PowerShell, activate the virtual environment with:
 
-## VPN client
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+Install the dependencies:
 
 ```bash
-python3 -m venv .venv
-. .venv/bin/activate
+python -m pip install --upgrade pip
 pip install -r requirements.txt
-export PROTON_VPN_TOKEN='your-token'
+```
+
+## Usage
+
+Set the API token as an environment variable:
+
+```bash
+export PROTON_VPN_TOKEN="your-token"
+```
+
+On Windows PowerShell:
+
+```powershell
+$env:PROTON_VPN_TOKEN = "your-token"
+```
+
+Run the client:
+
+```bash
 python vpn-client/connect.py
+```
+
+The client uses:
+
+- a 5-second connection timeout
+- a 15-second read timeout
+- bearer-token authentication
+- non-zero exit codes for missing tokens, request failures, and invalid JSON
+
+Confirm that the endpoint and authentication method match the Proton API
+contract you intend to use before production deployment.
+
+## Tests
+
+Install the development tools:
+
+```bash
+pip install pytest ruff
+```
+
+Run linting:
+
+```bash
+ruff check .
+```
+
+Run the tests:
+
+```bash
+pytest -q
+```
+
+## Security
+
+Never commit API tokens or other credentials. Use environment variables or a
+secrets manager for local and production deployments.
