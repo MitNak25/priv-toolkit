@@ -2,7 +2,7 @@
 
 **A privacy‑first toolbox built on Proton services** (VPN, Drive, Pass, Lumo).  
 Each sub‑folder contains a small, self‑contained utility that:
-
+The current module is a VPN API demo that reads `PROTON_VPN_TOKEN` from the environment and does not persist credentials.
 * Keeps secrets encrypted locally (AES‑256 via `cryptography`).
 * Communicates with Proton APIs over HTTPS with OAuth tokens.
 * Leaves **no raw logs** on disk – everything is either in‑memory or stored in an encrypted SQLite DB.
@@ -25,6 +25,7 @@ Each sub‑folder contains a small, self‑contained utility that:
 | `lumo-assistant/` | Ask Lumo questions from the terminal – zero‑access encryption, no logs. | `python ask.py "How can I encrypt a zip?"` |
 | `audit-suite/` | Scan your machine for common privacy leaks and produce an encrypted markdown report. | `python scan.py` |
 
+
 ## Installation
 
 ```bash
@@ -38,3 +39,12 @@ source .venv/bin/activate   # Windows: .\.venv\Scripts\activate
 
 # Install shared dependencies
 pip install -r requirements.txt
+
+## VPN client
+
+```bash
+python3 -m venv .venv
+. .venv/bin/activate
+pip install -r requirements.txt
+export PROTON_VPN_TOKEN='your-token'
+python vpn-client/connect.py
