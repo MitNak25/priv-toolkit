@@ -1,36 +1,42 @@
 #!/usr/bin/env python3
-"""
-Simple wrapper that demonstrates how to authenticate to Proton VPN
-and fetch the list of available servers. Real implementation
-will add auto‑connect, rotation, and encrypted stats storage.
-"""
+"""Fetch and display the list of available Proton VPN servers."""
 
+import json
 import os
 import sys
-import json
+
 import requests
-from pathlib import Path
-from cryptography.fernet import Fernet
 
 API_BASE = "https://api.protonvpn.com/vpn"
 
-def get_token():
-    """Read a token from an environment variable (for demo)."""
+
+def get_token() -> str:
+    """Read the API token from the environment."""
     token = os.getenv("PROTON_VPN_TOKEN")
     if not token:
-        print("Set PROTON_VPN_TOKEN env var with your Proton VPN API token.", file=sys.stderr)
-        sys.exit(1)
+        print("Set PROTON_VPN_TOKEN before running this command.", file=sys.stderr)
+        raise SystemExit(1)
     return token
 
-def list_servers(token):
-    resp = requests.get(f"{API_BASE}/servers", headers={"Authorization": f"Bearer {token}"})
-    resp.raise_for_status()
-    return resp.json()
 
-def main():
-    token = get_token()
-    servers = list_servers(token)
-    print(json.dumps(servers, indent=2))
+def list_servers(token: str) -> object:
+    """Request the available servers with a bounded network timeout."""
+    response = requests.get(
+        f"{API_BASE}/servers",
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=15,
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def main() -> None:
+    try:
+        print(json.dumps(list_servers(get_token()), indent=2))
+    except requests.RequestException as exc:
+        print(f"Unable to fetch Proton VPN servers: {exc}", file=sys.stderr)
+        raise SystemExit(2) from exc
+
 
 if __name__ == "__main__":
     main()
