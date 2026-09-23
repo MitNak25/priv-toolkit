@@ -11,14 +11,21 @@ API_BASE = "https://api.protonvpn.com/vpn"
 
 
 def get_token() -> str:
-    token = os.environ.get("PROTON_VPN_TOKEN")
+    """Return the API token from the environment without logging it."""
+    token = os.environ.get("PROTON_VPN_TOKEN", "").strip()
+
     if not token:
-        print("Set PROTON_VPN_TOKEN before running this command.", file=sys.stderr)
+        print(
+            "Set PROTON_VPN_TOKEN before running this command.",
+            file=sys.stderr,
+        )
         raise SystemExit(1)
+
     return token
 
 
 def list_servers(token: str) -> object:
+    """Fetch the server list with bounded connection and read timeouts."""
     response = requests.get(
         f"{API_BASE}/servers",
         headers={"Authorization": f"Bearer {token}"},
@@ -29,11 +36,22 @@ def list_servers(token: str) -> object:
 
 
 def main() -> int:
+    """Run the command-line client."""
     try:
-        print(json.dumps(list_servers(get_token()), indent=2))
+        servers = list_servers(get_token())
+        print(json.dumps(servers, indent=2))
+
     except requests.RequestException as exc:
         print(f"Unable to fetch Proton VPN servers: {exc}", file=sys.stderr)
         return 2
+
+    except ValueError as exc:
+        print(
+            f"Received invalid JSON from Proton VPN: {exc}",
+            file=sys.stderr,
+        )
+        return 3
+
     return 0
 
 
